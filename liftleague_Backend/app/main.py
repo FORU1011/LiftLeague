@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI(title="LiftLeague API")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust this in production to restrict origins
+    allow_origins=["https://lift-league.vercel.app"],  # Adjust this in production to restrict origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
