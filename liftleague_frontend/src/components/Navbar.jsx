@@ -10,6 +10,7 @@ function Navbar() {
     { to: "/dashboard", label: "Dashboard" },
     { to: "/exercises", label: "Exercises" },
     { to: "/workout", label: "Log Workout" },
+    { to: "/history", label: "History"},
   ]
 
   const handleLogout = async () => {

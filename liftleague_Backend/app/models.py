@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime
 from .database import Base
+from datetime import datetime, timezone
 
 #User Model
 class User(Base):
@@ -34,3 +35,4 @@ class Workout(Base):
     sets = Column(Integer)
     reps = Column(Integer)
     weight = Column(Integer)
+    logged_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

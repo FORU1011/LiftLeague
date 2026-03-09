@@ -49,3 +49,15 @@ export const getProfile = async () => {
   if (!res.ok) throw new Error("Failed to fetch profile") 
   return res.json()
 }
+
+export const getWorkoutHistory = async (userId) => {
+  const res = await fetch(`${API_URL}/workouts/${userId}/history`, opts)
+  if (!res.ok) throw new Error("Failed to fetch history")
+    return res.join()
+}
+
+export const getMusclePRs = async (userId) =>{
+  const res = await fetch(`${API_URL}/workouts/${userId}/prs`, opts)
+  if(!res.ok) throw new Error("Failed to fetch PRs")
+    return res.json()
+}

@@ -7,6 +7,8 @@ import Signup from "./pages/Signup"
 import Dashboard from "./pages/Dashboard"
 import Exercises from "./pages/exercises"
 import WorkoutLogger from "./pages/WorkoutLogger"
+import WorkoutHistory from "./pages/WorkoutHistory"
+
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth()
@@ -38,6 +40,11 @@ function AppRoutes() {
         <Route path="/workout" element={
           <ProtectedRoute>
             <Navbar /><div style={{ maxWidth: 1200, margin: "0 auto" }}><WorkoutLogger /></div>
+          </ProtectedRoute>
+        } />
+        <Route path="/history" element={
+          <ProtectedRoute>
+            <Navbar /><div style = {{ maxWidth: 1200, margin: "0 auto" }}><WorkoutHistory /></div>
           </ProtectedRoute>
         } />
       </Routes>
