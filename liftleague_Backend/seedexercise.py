@@ -1,28 +1,40 @@
+import requests 
 from app.database import SessionLocal
 from app import models
 
-db = SessionLocal()
+URL = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json"
 
-exercise1 = models.Exercise(
-    name="Bench Press",
-    category="Chest",
-    target_muscle="Pectorals",
-    difficulty="Intermediate",
-    instructions="Lie on a bench and press the bar upward",
-    video_url="https://www.youtube.com/watch?v=rT7DgCr-3pg"
-)
+def seed_exercises():
+    res = requests.get(URL)
+    data = res.json()
 
-exercise2 = models.Exercise(
-    name="Squat",
-    category="Legs",
-    target_muscle="Quadriceps",
-    difficulty="Intermediate",
-    instructions="Stand with feet shoulder-width and squat down",
-    video_url="https://www.youtube.com/watch?v=Dy28eq2PjcM"
-)
+    db = SessionLocal()
 
-db.add(exercise1)
-db.add(exercise2)   
+    #Clear exisiting exercises
+    db.query(models.Workout).delete()
+    db.query(models.Exercise).delete()
+    db.commit()
 
-db.commit()
-db.close()
+    count = 0
+    for exercise in data:
+        try:
+            new_exercise = models.Exercise(
+                name = exercise.get("name", "Unknown"),
+                category = exercise.get("category", "General").title(),
+                target_muscle = ", ".join(exercise.get("primaryMuscles", ["General"])).title(),
+                difficulty = exercise.get("level", "Beginner").capitalize(),
+                instructions = ", ".join(exercise.get("instructions", ["No instructions available"])),
+                video_url = f"https://www.youtube.com/results?search_query={exercise.get('name', ''). replace(' ', '+')}+exercise+tutorial"   
+            )
+            db.add(new_exercise)
+            count += 1
+        except Exception as e:
+            print(f"Skipping exercise: {e}")
+            continue
+    
+    db.commit()
+    db.close()
+    print(f"Seeded {count} exercises successfully!")
+
+if __name__ == "__main__":
+    seed_exercises()
