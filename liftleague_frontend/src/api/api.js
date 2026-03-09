@@ -1,6 +1,6 @@
 const API_URL = import.meta.env.VITE_API_URL
 
-const opts = {Credentials: "include"}
+const opts = {credentials: "include"}
 
 // Auth
 export const registerUser = async (data) => {
@@ -45,7 +45,7 @@ export const logWorkout = async (workout) => {
 }
 
 export const getProfile = async () => {
-  const res = await fetch(`${API_URL}/profile/1`)
-  const data = await res.json()
-  return data
+  const res = await fetch(`${API_URL}/auth/me`, opts)
+  if (!res.ok) throw new Error("Failed to fetch profile") 
+  return res.json()
 }
