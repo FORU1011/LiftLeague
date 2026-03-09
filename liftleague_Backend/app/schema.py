@@ -24,6 +24,7 @@ class WorkoutCreate(BaseModel):
 
 class WorkoutResponse(WorkoutCreate):
     id:int
+    logged_at: datetime
 
     class Config:
         from_attributes = True
@@ -38,7 +39,7 @@ class WorkoutHistoryItem(BaseModel):
     weight: int
     logged_at: datetime
 
-    class config:
+    class Config:
         from_attributes = True
 
 class MusclePR(BaseModel):
