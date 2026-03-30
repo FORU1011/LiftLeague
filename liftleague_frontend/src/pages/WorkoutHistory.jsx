@@ -103,44 +103,74 @@ function PRCard({ pr }) {
 // ─── History Row ──────────────────────────────────────────────────────────────
 
 function HistoryRow({ item, index }) {
-  const group = resolveGroup(item.target_muscle, "")
+  const group = resolveGroup({ target_muscle: item.target_muscle, category: "" })
   const color = MUSCLE_COLORS[group] || "#c8f135"
+  const [expanded, setExpanded] = useState(false)
+  const completedSets = item.sets?.filter(s => s.completed) || []
+  const maxWeight = completedSets.length ? Math.max(...completedSets.map(s => s.weight)) : 0
 
   return (
     <div style={{
-      display: "flex", alignItems: "center", gap: "1rem",
-      padding: "0.875rem 1rem",
       background: index % 2 === 0 ? "#0a0a0a" : "#0d0d0d",
-      borderRadius: 10,
+      borderRadius: 10, overflow: "hidden",
       animation: `fadeUp 0.3s ${index * 0.03}s ease both`,
+      border: "1px solid #161616",
     }}>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ margin: 0, fontSize: "0.875rem", fontWeight: 600, color: "#d8d8d8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-          {item.exercise_name}
-        </p>
-        <p style={{ margin: 0, fontSize: "0.7rem", color: "#444" }}>
-          {formatDate(item.logged_at)} · {formatTime(item.logged_at)}
-        </p>
-      </div>
-
-      <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexShrink: 0 }}>
-        {[
-          { val: item.sets, label: "sets" },
-          { val: item.reps, label: "reps" },
-          { val: item.weight, label: "kg" },
-        ].map(({ val, label }) => (
-          <div key={label} style={{ textAlign: "center", minWidth: 38 }}>
-            <p style={{ margin: 0, fontSize: "0.95rem", fontWeight: 700, color: "#c0c0c0", lineHeight: 1 }}>{val}</p>
-            <p style={{ margin: 0, fontSize: "0.6rem", color: "#333", textTransform: "uppercase" }}>{label}</p>
+      {/* Main row */}
+      <div
+        onClick={() => setExpanded(e => !e)}
+        style={{ display: "flex", alignItems: "center", gap: "1rem", padding: "0.875rem 1rem", cursor: "pointer" }}
+      >
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ margin: 0, fontSize: "0.875rem", fontWeight: 600, color: "#d8d8d8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {item.exercise_name}
+          </p>
+          <p style={{ margin: 0, fontSize: "0.7rem", color: "#444" }}>
+            {formatDate(item.logged_at)} · {formatTime(item.logged_at)}
+            {item.duration_seconds ? ` · ${formatDuration(item.duration_seconds)}` : ""}
+          </p>
+        </div>
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexShrink: 0 }}>
+          <div style={{ textAlign: "center", minWidth: 38 }}>
+            <p style={{ margin: 0, fontSize: "0.95rem", fontWeight: 700, color: "#c0c0c0", lineHeight: 1 }}>{completedSets.length}</p>
+            <p style={{ margin: 0, fontSize: "0.6rem", color: "#333", textTransform: "uppercase" }}>sets</p>
           </div>
-        ))}
+          <div style={{ textAlign: "center", minWidth: 38 }}>
+            <p style={{ margin: 0, fontSize: "0.95rem", fontWeight: 700, color: "#c0c0c0", lineHeight: 1 }}>{maxWeight}</p>
+            <p style={{ margin: 0, fontSize: "0.6rem", color: "#333", textTransform: "uppercase" }}>kg max</p>
+          </div>
+        </div>
+        <span style={{
+          fontSize: "0.65rem", fontWeight: 700, color, background: color + "15",
+          padding: "0.2rem 0.55rem", borderRadius: 6, flexShrink: 0,
+          textTransform: "uppercase", letterSpacing: "0.08em",
+        }}>{group}</span>
+        <span style={{ color: "#333", fontSize: "0.75rem" }}>{expanded ? "▲" : "▼"}</span>
       </div>
 
-      <span style={{
-        fontSize: "0.65rem", fontWeight: 700, color, background: color + "15",
-        padding: "0.2rem 0.55rem", borderRadius: 6, flexShrink: 0,
-        textTransform: "uppercase", letterSpacing: "0.08em",
-      }}>{group}</span>
+      {/* Expanded sets */}
+      {expanded && (
+        <div style={{ padding: "0 1rem 0.875rem", borderTop: "1px solid #161616" }}>
+          {item.notes && (
+            <p style={{ margin: "0.5rem 0", fontSize: "0.78rem", color: "#555", fontStyle: "italic" }}>
+              "{item.notes}"
+            </p>
+          )}
+          <div style={{ display: "grid", gridTemplateColumns: "40px 1fr 1fr 1fr", gap: "0.4rem", marginTop: "0.5rem" }}>
+            {["SET", "KG", "REPS", "STATUS"].map(h => (
+              <span key={h} style={{ fontSize: "0.6rem", color: "#2a2a2a", textTransform: "uppercase", letterSpacing: "0.08em", textAlign: "center" }}>{h}</span>
+            ))}
+            {item.sets?.map(s => (
+              <>
+                <span key={`n-${s.id}`} style={{ textAlign: "center", fontSize: "0.8rem", color: "#444", fontFamily: "monospace" }}>{s.set_number}</span>
+                <span key={`w-${s.id}`} style={{ textAlign: "center", fontSize: "0.8rem", color: "#888" }}>{s.weight}</span>
+                <span key={`r-${s.id}`} style={{ textAlign: "center", fontSize: "0.8rem", color: "#888" }}>{s.reps}</span>
+                <span key={`c-${s.id}`} style={{ textAlign: "center", fontSize: "0.75rem", color: s.completed ? color : "#333" }}>{s.completed ? "✓" : "—"}</span>
+              </>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -254,4 +284,11 @@ export default function WorkoutHistory() {
       )}
     </div>
   )
+}
+
+function formatDuration(seconds) {
+  if (!secs) return ""
+  const m = Math.floor(secs/60)
+  const s = secs % 60
+  return `${m}m ${s}s`
 }

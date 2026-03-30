@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean
 from .database import Base
 from datetime import datetime, timezone
 
@@ -32,7 +32,16 @@ class Workout(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     exercise_id = Column(Integer, ForeignKey("exercises.id"))
-    sets = Column(Integer)
-    reps = Column(Integer)
+    notes = Column(Text, nullable=True)
+    duration_seconds = Column(Integer, nullable=True)
+    logged_at = Column(DateTime, default=datetime.utcnow)
+
+class WorkoutSet(Base):
+    __tablename__ = "workout_sets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    workout_id = Column(Integer, ForeignKey("workouts.id"))
+    set_number = Column(Integer)
     weight = Column(Integer)
-    logged_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    reps = Column(Integer)
+    completed = Column(Boolean, default=True)

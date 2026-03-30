@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
+from typing import Optional
 
 class ExerciseBase(BaseModel):
     name:str
@@ -15,15 +16,33 @@ class ExerciseResponse(ExerciseBase):
     class Config:
         from_attributes = True
 
+class SetCreate(BaseModel):
+    set_number:int
+    weight:int
+    reps:int
+    completed:bool = True
+
+class SetResponse(SetCreate):
+    id:int
+
+    class Config:
+        from_attributes = True
+
 class WorkoutCreate(BaseModel):
     user_id:int
     exercise_id:int
-    sets:int
-    reps:int
-    weight:int  
+    notes: Optional[str] = None
+    duration_seconds: Optional[int] = None
+    sets: list[SetCreate]
 
 class WorkoutResponse(WorkoutCreate):
     id:int
+    user_id: int
+    exercise_id: int
+    notes: Optional[str]
+    duration_seconds: Optional[int]
+    logged_at: datetime
+    sets: list[SetResponse]
 
     class Config:
         from_attributes = True
@@ -33,19 +52,18 @@ class WorkoutHistoryItem(BaseModel):
     exercise_id: int
     exercise_name: str
     target_muscle: str
-    sets: int
-    reps: int
-    weight: int
+    notes: Optional[str]
+    duration_seconds: Optional[int]
     logged_at: datetime
+    sets: list[SetResponse]
 
-    class config:
+    class Config:
         from_attributes = True
 
 class MusclePR(BaseModel):
     muscle_group: str
     exercise_name: str
     weight: int
-    sets: int
     reps: int
     logged_at: datetime
 
